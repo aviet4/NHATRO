@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quản Lý Tiền Nhà Trọ</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--tx:#1b2333;--mu:#6b768a;--bd:#e2e7f0;--pr:#1f6feb;--prs:#e8f0fe;--ok:#0f9d58;--yl:#fff6c7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141c;--card:#171e29;--tx:#e6ebf3;--mu:#8f9bb0;--bd:#283244;--pr:#5b9dff;--prs:#1c2b45;--ok:#3ccf8a;--yl:#3b3410}}
+:root[data-theme="dark"]{--bg:#0f141c;--card:#171e29;--tx:#e6ebf3;--mu:#8f9bb0;--bd:#283244;--pr:#5b9dff;--prs:#1c2b45;--ok:#3ccf8a;--yl:#3b3410}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--bd);padding:12px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+h1{font-size:18px;margin:0}h1 small{display:block;font-weight:400;color:var(--mu);font-size:12px}
+nav{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:10px}
+nav button{border:0;background:none;color:var(--mu);padding:7px 14px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+nav button.on{background:var(--card);color:var(--pr);box-shadow:0 1px 3px #0002}
+main{max-width:1500px;margin:0 auto;padding:18px 16px 60px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+.card h2{font-size:14px;margin:0 0 12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mu)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+label{display:block;font-size:12px;color:var(--mu);margin-bottom:3px;font-weight:600}
+input,select{width:100%;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;padding:7px 9px;font:inherit}
+input:focus,select:focus{outline:2px solid var(--pr);outline-offset:-1px}
+.price input{background:var(--yl);font-weight:700}
+.btn{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+.btn.p{background:var(--pr);border-color:var(--pr);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px}.stat b{display:block;font-size:20px}.stat span{color:var(--mu);font-size:12px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+th{font-size:11px;text-transform:uppercase;color:var(--mu);background:var(--bg)}
+td input{padding:6px 7px;min-width:70px;font-size:14px}#tb td:first-child,#tb th:first-child{position:sticky;left:0;z-index:1}#tb td:first-child{background:var(--card)}#tb th:first-child{background:var(--bg)}#tb tfoot td:first-child{background:var(--prs)}td.n,th.n{text-align:right}
+tfoot td{font-weight:700;background:var(--prs)}
+.tot{font-weight:700;color:var(--pr)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:14px}.bar>div{min-width:180px}
+.sheet{background:#fff;color:#111;border:1px solid #ccc;border-radius:6px;padding:26px 30px;max-width:640px;margin:0 auto 18px;font-family:"Times New Roman",Georgia,serif;font-size:15px;page-break-inside:avoid}
+.sheet h3{text-align:center;margin:0;font-size:20px;letter-spacing:.03em}.sheet .c{text-align:center;margin:2px 0 14px}
+.sheet table{min-width:0;margin:10px 0}.sheet th,.sheet td{border:1px solid #444;color:#111;background:none;font-size:14px;padding:5px 8px;text-transform:none;white-space:normal}
+.sheet .r{text-align:right}.sheet .sig{text-align:right;margin-top:26px;padding-right:20px}
+.sheet .sum{font-size:16px;font-weight:700}
+.hide{display:none}
+@media print{header,.noprint,.card,.stats{display:none!important}body{background:#fff}main{padding:0}.sheet{border:0;margin:0 auto 14px;box-shadow:none}}
+
+/* Bảng nhập vừa 1 trang, không kéo ngang */
+#tb{table-layout:fixed;width:100%;min-width:0}
+#tb th,#tb td{padding:5px 3px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tb th{white-space:normal;line-height:1.2;font-size:10.5px;vertical-align:bottom}
+#tb td input{width:100%!important;min-width:0!important;padding:6px 4px;font-size:13px}
+#tb input[type=number]{-moz-appearance:textfield}
+#tb input[type=number]::-webkit-inner-spin-button,#tb input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+#tb th:nth-child(1){width:5.5%}#tb th:nth-child(2){width:12%}#tb th:nth-child(3),#tb th:nth-child(4){width:6%}#tb th:nth-child(5){width:4%}
+#tb th:nth-child(6){width:8.5%}#tb th:nth-child(7),#tb th:nth-child(8){width:7%}#tb th:nth-child(9){width:6%}#tb th:nth-child(10){width:4%}
+#tb th:nth-child(11){width:6.5%}#tb th:nth-child(12){width:5.5%}#tb th:nth-child(13){width:5%}#tb th:nth-child(14){width:5.5%}#tb th:nth-child(15){width:8%}#tb th:nth-child(16){width:2.5%}
+#tb .btn{padding:3px 6px}
+@media (max-width:980px){
+ #tb,#tb tbody,#tb tr,#tb td{display:block;width:100%}
+ #tb thead,#tb tfoot{display:none}
+ #tb tr{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 10px;border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px;background:var(--card)}
+ #tb td{border:0;padding:0;white-space:normal;overflow:visible;font-size:14px;position:static!important}
+ #tb td::before{content:attr(data-l);display:block;font-size:11px;color:var(--mu);font-weight:600;margin-bottom:2px}
+ #tb td:nth-child(1),#tb td:nth-child(2),#tb td:last-child{grid-column:1/-1}
+ #tb td:last-child::before{display:none}
+ #tb td.n{text-align:left}
+ #tb td input{font-size:15px;padding:8px}
+}
+.xbox{position:fixed;left:-10000px;top:0;width:560px;background:#fff;pointer-events:none}
+.sheet.x{max-width:none;width:560px;margin:0;border:0;border-radius:0;padding:30px 28px;font-size:21px;line-height:1.45}
+.sheet.x h3{font-size:30px}.sheet.x table{margin:14px 0}
+.sheet.x th,.sheet.x td{font-size:19px;padding:8px 10px}.sheet.x .sum{font-size:25px}.sheet.x .sig{margin-top:32px}
+#sync{font-size:12px;font-weight:600;color:var(--mu)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%)}
+@keyframes fl{from{background:#ffe680}to{background:transparent}}
+#tb tr.flash td{animation:fl 2s}
+body.ro #in input,body.ro #in button{opacity:.65}
+#login,#pend{display:none;position:fixed;inset:0;background:var(--bg);z-index:50;align-items:center;justify-content:center;padding:20px}
+#login.on,#pend.on{display:flex}
+#login .card,#pend .card{max-width:380px;width:100%;margin:0}
+#lerr{color:#d93025;font-size:12px;min-height:18px;margin:6px 0}
+#login input{margin-bottom:8px}
+#lout{padding:3px 9px;display:none}
+</style>
+</head>
+<body>
+<header class="noprint">
+  <h1>🏠 Quản Lý Tiền Nhà Trọ<small id="sub"></small></h1>
+  <nav><button data-t="in" class="on">Nhập số tháng</button><button data-t="bill">Phiếu thông báo</button><button data-t="sum">Tổng hợp</button><button data-t="split">Chia tiền</button><button data-t="hist">Lịch sử</button><button data-t="log">Nhật ký</button><button data-t="acc" id="navacc" class="hide">Tài khoản</button></nav><span id="sync" style="font-size:12px;color:var(--mu)"></span><button class="btn" id="lout">Đăng xuất</button>
+</header>
+<main>
+<section id="in">
+  <div class="card price"><h2>Thiết lập giá (nhập vào ô vàng)</h2>
+    <div class="grid">
+      <div><label>Kỳ tính tiền</label><input type="month" id="month" style="background:var(--card);font-weight:400"></div>
+      <div><label>Điện (đ / số Kw)</label><input type="number" id="elec"></div>
+      <div><label>Nước (đ / người / tháng)</label><input type="number" id="water"></div>
+      <div><label>Rác (đ / phòng)</label><input type="number" id="trash"></div>
+      <div><label>Phụ thu (đ / người vượt)</label><input type="number" id="sur"></div>
+      <div><label>Số người miễn phụ thu</label><input type="number" id="free"></div>
+      <div><label>Nội dung hỗ trợ (chữ, in trên phiếu)</label><input id="supn" placeholder="VD: Thưởng Tết"><div id="supw" style="color:#d93025;font-size:12px;margin-top:2px"></div></div>
+      <div><label>Số tiền hỗ trợ mỗi phòng (đ)</label><input type="number" id="supa" placeholder="VD: 200000"></div>
+      <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="supk" style="width:auto">Áp dụng cả Kiot</label><button class="btn" id="supapply">Áp dụng cho các phòng có người thuê</button><button class="btn" id="supclear">Xóa hết hỗ trợ</button></div>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="card"><div class="bar"><h2 style="margin:0;flex:1">Số liệu từng phòng</h2>
+    <button class="btn" id="add">+ Thêm phòng</button><button class="btn" id="savem">Lưu tạm (giữ tháng này)</button><button class="btn p" id="close">Lưu &amp; sang tháng mới ➜</button></div>
+    <div class="tw"><table id="tb"></table></div>
+  </div>
+</section>
+<section id="bill" class="hide">
+  <div class="card noprint"><div class="bar">
+    <div><label>Chọn phòng</label><select id="room"></select></div>
+    <div><label>Người quản lý (ký tên)</label><input id="mgr"></div>
+    <div style="flex:2"><label>Chi tiết thanh toán (STK, ngân hàng...)</label><input id="pay" placeholder="VD: Vietcombank 0123456789 - Nguyễn Thị Minh Huệ"></div>
+    <div><label>Khi tải ảnh về máy</label><select id="per"><option value="each">Mỗi phòng 1 ảnh riêng</option><option value="0">Ghép tất cả vào 1 ảnh dài</option><option value="6">Mỗi ảnh 6 phiếu</option><option value="10">Mỗi ảnh 10 phiếu</option></select></div><button class="btn p" id="exShare" disabled>📤 Gửi ảnh qua Zalo</button><button class="btn" id="exImg">🖼 Tải ảnh về máy</button><button class="btn" id="exPdf1">📄 Xuất PDF</button><button class="btn" id="print1">🖨 In</button></div><div style="color:var(--mu);font-size:12px;margin-top:8px" id="xhint">📤 <b>Gửi ảnh qua Zalo</b>: mở bảng chia sẻ của điện thoại, bạn chọn Zalo rồi chọn người nhận, mỗi phòng là 1 ảnh và tất cả được gửi cùng lúc. Chọn “Tất cả phòng” để gửi hàng loạt hoặc chọn 1 phòng để gửi riêng. Nút sáng lên khi ảnh đã chuẩn bị xong.</div></div></div>
+  <div id="sheets"></div>
+</section>
+<section id="hist" class="hide">
+  <div class="card"><h2>Tổng thu theo tháng</h2><div id="hchart"></div></div>
+  <div class="card"><h2>Các tháng đã lưu</h2><div class="tw"><table id="ht"></table></div></div>
+  <div class="card hide" id="hdc"><div class="bar"><h2 style="margin:0;flex:1" id="hdt"></h2><button class="btn" id="hdx">Đóng</button></div><div class="tw"><table id="hd"></table></div></div>
+</section>
+<section id="split" class="hide">
+  <div class="stats" id="sstats"></div>
+  <div class="card"><div class="bar"><h2 style="margin:0;flex:1">Chia tiền cuối tháng</h2><button class="btn p xl">⬇ Xuất Excel</button></div>
+    <div class="grid price" style="margin-bottom:14px"><div><label>Chi phí điện + rác trả ngoài (rác, đ)</label><input type="number" id="strash"></div></div>
+    <p style="color:var(--mu);margin:0 0 12px">Công thức: (Tổng thu các phòng trọ − tiền hỗ trợ − tiền điện các phòng − chi phí rác) ÷ số người. Tiền rác thu của Kiot (nếu có) được cộng vào khoản thu chung. Người được tick nhận thêm tiền thuê Kiot (sau khi trừ hỗ trợ của Kiot), chia đều cho những người được tick.</p>
+    <div class="tw"><table id="spt"></table></div>
+    <div style="margin-top:10px"><button class="btn" id="addp">+ Thêm người</button></div>
+  </div>
+</section>
+<section id="log" class="hide">
+  <div class="card"><div class="bar"><h2 style="margin:0;flex:1">Nhật ký thay đổi (100 mục gần nhất)</h2><button class="btn" id="logr">Tải lại</button></div><div class="tw"><table id="lgt"></table></div></div>
+</section>
+<section id="acc" class="hide">
+  <div class="card"><h2>Quản lý tài khoản</h2>
+    <p style="margin:0 0 10px;color:var(--mu)">Người dùng tự tạo tài khoản trong app, tên họ hiện ở đây (dòng vàng = mới đăng ký, chưa cấp quyền). Bạn chọn <b>Chỉ xem</b> hoặc <b>Được sửa</b>; chọn <b>Chưa cấp</b> để thu hồi. Thay đổi có hiệu lực ngay, họ không cần đăng nhập lại.</p>
+    <div class="tw"><table id="ust"></table></div></div>
+</section>
+<section id="sum" class="hide">
+  <div class="card"><div class="bar"><h2 style="margin:0;flex:1">Bảng tổng hợp tháng</h2><button class="btn p xl">⬇ Xuất Excel</button></div><div id="sumnote" style="color:var(--mu);margin-bottom:8px"></div><div class="tw"><table id="st"></table></div></div>
+</section>
+</main>
+<div id="login"><div class="card"><h2 style="font-size:16px;text-transform:none;color:var(--tx)">🏠 Quản Lý Tiền Nhà Trọ</h2>
+  <label>Họ tên (chỉ cần khi tạo tài khoản mới)</label><input id="lname" autocomplete="name" placeholder="VD: Nguyễn Văn A">
+  <label>Email</label><input id="lem" type="email" autocomplete="username">
+  <label>Mật khẩu (tối thiểu 6 ký tự)</label><input id="lpw" type="password" autocomplete="current-password">
+  <div id="lerr"></div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn p" id="lin">Đăng nhập</button><button class="btn" id="lup">Tạo tài khoản</button></div>
+  <p style="color:var(--mu);font-size:12px;margin:12px 0 0">Người mới: nhập họ tên, email, mật khẩu rồi bấm “Tạo tài khoản”, sau đó chờ chủ app cấp quyền xem hoặc sửa.</p></div></div>
+<div id="pend"><div class="card"><h2 style="font-size:16px;text-transform:none;color:var(--tx)">⏳ Chờ chủ app cấp quyền</h2>
+  <p>Tài khoản <b id="pem"></b> đã đăng nhập nhưng chưa được cấp quyền xem dữ liệu.</p>
+  <p>Hãy báo chủ app cấp quyền cho tài khoản này. Khi được cấp, màn hình sẽ tự mở, không cần đăng nhập lại.</p><p style="color:var(--mu);font-size:12px">Mã UID (chỉ cần dùng nếu bạn là chủ app mà không vào được):</p><input id="puid" readonly onclick="this.select()">
+  <p style="color:var(--mu);font-size:12px">Nếu bạn là chủ app mà vẫn thấy màn hình này, UID trên chưa trùng UID ghi trong firestore.rules và biến OWNER_UID. Hãy thay cả hai bằng UID này.</p>
+  <button class="btn" id="pout">Đăng xuất</button></div></div>
+<div id="toast" class="noprint"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* =====================================================================
+   CẤU HÌNH FIREBASE – DÁN firebaseConfig CỦA PROJECT VÀO ĐÂY
+   (Firebase Console > Project settings > Your apps > Web app > Config)
+   ===================================================================== */
+const FIREBASE_CONFIG={
+ apiKey:"AIzaSyCYDGKWFlt5FQlpxTpYQih2NM8KSzQi5aQ",
+ authDomain:"nhatro-1eefe.firebaseapp.com",
+ projectId:"nhatro-1eefe",
+ storageBucket:"nhatro-1eefe.firebasestorage.app",
+ messagingSenderId:"80516106249",
+ appId:"1:80516106249:web:6d56f7c4cca2c2617ad0d8"
+};
+/* UID chủ app: phải trùng với UID trong firestore.rules. UID là riêng cho từng project Firebase. */
+const OWNER_UID='alL05j1wQmTzlkyJqFgzxLJo3hN2';
+const FB_MISSING=!FIREBASE_CONFIG.projectId||/DÁN/.test(FIREBASE_CONFIG.apiKey);
+</script>
+<script>
+/* ===== Lớp chuyển đổi Firestore -> giao diện DB mà phần còn lại của app đang dùng ===== */
+let FS=null,ME={uid:'',name:'',email:''};
+function flatObj(o,pre,out){out=out||{};for(const k in o){const v=o[k],p=pre?pre+'.'+k:k;if(v&&typeof v==='object'&&!Array.isArray(v))flatObj(v,p,out);else out[p]=v}return out}
+function mapErr(e){const c=String((e&&e.code)||'').replace('firestore/','');const m={'permission-denied':'revoked','not-found':'invalid_argument'};const x=new Error((e&&e.message)||c);x.code=m[c]||c;return x}
+function logw(op,path,data){
+ if(!FS||!(path.startsWith('rooms/')||path==='cfg/main'||path.startsWith('hist/')))return;
+ let d=null;if(data&&!path.startsWith('hist/')){const {by,at,...rest}=data;d=JSON.stringify(rest).slice(0,1500)}
+ FS.collection('log').add({at:firebase.firestore.FieldValue.serverTimestamp(),by:ME.uid,name:ME.name,email:ME.email,op,path,data:d}).catch(()=>{})}
+function makeDB(fs){
+ const wrapQ=q=>({orderBy:f=>wrapQ(q.orderBy(f)),get:async()=>{try{return await q.get()}catch(e){throw mapErr(e)}},onSnapshot:(cb,er)=>q.onSnapshot(cb,e=>er&&er(mapErr(e)))});
+ return{
+  doc:path=>{const r=fs.doc(path);return{
+   get:async()=>{try{return await r.get()}catch(e){throw mapErr(e)}},
+   set:async d=>{try{await r.set(d);logw('set',path,d)}catch(e){throw mapErr(e)}},
+   update:async d=>{try{await r.update(flatObj(d));logw('update',path,d)}catch(e){throw mapErr(e)}},
+   delete:async()=>{try{await r.delete();logw('delete',path)}catch(e){throw mapErr(e)}},
+   acquire:async({holder,ttlMs})=>{try{return await fs.runTransaction(async tx=>{const s=await tx.get(r),n=Date.now();
+     if(s.exists){const x=s.data();if(x.holder&&x.holder!==holder&&x.exp>n)return{acquired:false}}
+     tx.set(r,{holder,exp:n+ttlMs});return{acquired:true}})}catch(e){throw mapErr(e)}},
+   onSnapshot:(cb,er)=>r.onSnapshot(cb,e=>er&&er(mapErr(e)))}},
+  collection:name=>wrapQ(fs.collection(name))}}
+</script>
+<script>
+const R=(n,o,p,r,k)=>({n,t:n=='x'?'':o,rent:r,old:p,neu:'',ppl:k[0],debt:0,sup:0,trash:'',kiot:!!k[1]});
+const SEED=[['1A','Bỗng',1000000,1319,[3]],['2A','Ngô Hoàng Tiệp',1000000,7947,[2]],['3A','Lê Minh Trường',900000,3645,[2]],['6A','Huỳnh Ngọc Điểm',1000000,8189,[2]],['7A','',1000000,0,[0]],['8A','',1000000,0,[0]],['9A',"R'ô Lô",1500000,17769,[2]],['1B','Nguyễn Hồng Xuân',1000000,1636,[2]],['2B','A. Bỗng',1000000,2087,[2]],['3B','N. Xuân Ngọc Bích',1000000,13646,[3]],['6B','Huỳnh Tiến Viên',1000000,11500,[1]],['7B','',1000000,4773,[1]],['8B','Nguyễn Văn Chiến',1000000,14889,[1]],['9B','Nay Duc',1000000,2356,[2]],['10B','Minh Quân',1000000,12166,[1]],['3C','',1000000,142,[0]],['4C','Trần Văn Hận',1000000,1028,[2]],['5C','Chiến',1000000,3729,[1]],['6C','Nay Lương',1000000,1122,[2]],['7C','Phụng',1000000,2551,[0]],['8C','Tú Trinh',1000000,5,[1]],['Kiot 1','Nguyễn Thị Thu Hương',6000000,7603,[1,1]],['Kiot 2','Lê Văn Sang',6000000,38526,[5,1]]];
+const D0={m:'',p:{elec:3800,water:30000,trash:25000,sur:100000,free:3},mgr:'Nguyễn Thị Minh Huệ',pay:'',sel:0,rooms:SEED.map(s=>R(s[0],s[1],s[3],s[2],s[4])),split:{trash:800000,partners:[{n:'A. Thái',k:0},{n:'A. Bình',k:1},{n:'A. Minh',k:0},{n:'Huệ',k:1}]}};
+let S=JSON.parse(JSON.stringify(D0));
+try{const x=localStorage.getItem('nhatro_v1');if(x)S=JSON.parse(x)}catch(e){}
+if(!S.hist)S.hist={};
+if(S.supNote==null)S.supNote='Hỗ trợ (Tết/lễ)';
+if(S.supAmt==null)S.supAmt=0;
+function numOnly(v){v=String(v==null?'':v).trim();return v!==''&&/^[\d.,\s]+$/.test(v)}
+function fixSup(){if(numOnly(S.supNote)){if(!S.supAmt)S.supAmt=+String(S.supNote).replace(/[.,\s]/g,'')||0;S.supNote='Hỗ trợ (Tết/lễ)';return true}return false}
+fixSup();
+if(!S.split)S.split=JSON.parse(JSON.stringify(D0.split));
+if(!S.m){const d=new Date();S.m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+function normRoom(r){const d={id:'',o:0,n:'',t:'',rent:0,old:0,neu:'',ppl:0,debt:0,sup:0,trash:'',kiot:false};for(const k in d)if(r[k]===undefined||r[k]===null)r[k]=d[k];return r}
+S.rooms.forEach((r,j)=>{if(!r.id)r.id='r'+String(j+1).padStart(2,'0');if(r.o==null)r.o=j;normRoom(r)});
+
+/* ===== ĐỒNG BỘ THỜI GIAN THỰC (mỗi phòng = 1 tài liệu riêng) ===== */
+let DB=null,UID=null,RO=false,READY=false;
+const RDY={c:0,r:0},RF=['o','n','t','rent','old','neu','ppl','debt','sup','trash','kiot'];
+const nid=()=>'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const setSync=(t,c)=>{const e=document.getElementById('sync');if(e){e.textContent=t;e.style.color=c||'var(--mu)'}};
+const stamp=o=>({...o,by:UID||'',at:new Date().toISOString()});
+const cfgOf=()=>clone({m:S.m,p:S.p,mgr:S.mgr,pay:S.pay,supNote:S.supNote,supAmt:S.supAmt,split:S.split});
+const roomOf=r=>{const o={};RF.forEach(k=>o[k]=r[k]===undefined?'':r[k]);return o};
+let REM={cfg:null,rooms:{}},CT=0;
+const PEND={},TMR={},BUSY={},PROT={},GONE={},NEWR={};
+const cacheLocal=()=>{clearTimeout(CT);CT=setTimeout(()=>{try{localStorage.setItem('nhatro_v1',JSON.stringify(S))}catch(e){}},700)};
+function dassign(t,src){for(const k in src){const v=src[k];if(v&&typeof v==='object'&&!Array.isArray(v)){if(!t[k]||typeof t[k]!=='object'||Array.isArray(t[k]))t[k]={};dassign(t[k],v)}else t[k]=v}return t}
+function protect(path,fields,ms){const P=PROT[path]=PROT[path]||{},t=Date.now()+(ms||2500);
+ for(const k in fields){const v=fields[k];if((k==='p'||k==='split')&&v&&typeof v==='object'&&!Array.isArray(v)){for(const sk in v)P[k+'.'+sk]=t}else P[k]=t}}
+const isProt=(path,k)=>{const t=PROT[path]&&PROT[path][k];return !!t&&t>Date.now()};
+function enqueue(path,fields,o){o=o||{};const q=PEND[path]=PEND[path]||{f:{},full:null,del:false};
+ if(o.del){q.del=true;q.f={};q.full=null}
+ else{q.del=false;dassign(q.f,fields);if(o.full)q.full=o.full;else if(q.full)dassign(q.full,fields);protect(path,fields)}
+ clearTimeout(TMR[path]);TMR[path]=setTimeout(()=>flush(path),o.now?0:400);setSync('Đang lưu…')}
+async function flush(path){
+ if(BUSY[path]){TMR[path]=setTimeout(()=>flush(path),250);return}
+ const q=PEND[path];if(!q)return;delete PEND[path];BUSY[path]=1;
+ try{const ref=DB.doc(path);
+  if(q.del)await ref.delete();
+  else if(q.full)await ref.set(stamp(q.full));
+  else{try{await ref.update(stamp(q.f))}catch(e){if(!(e&&e.code==='invalid_argument'))throw e;
+    if(path==='cfg/main')await ref.set(stamp(cfgOf()));
+    else{const r=S.rooms.find(x=>'rooms/'+x.id===path);if(r)await ref.set(stamp(roomOf(r)))}}}
+  protect(path,q.f,1500);
+  if(!Object.keys(PEND).length)setSync('🟢 Đã lưu · đồng bộ trực tiếp','var(--ok)');
+ }catch(e){onWriteErr(e,path,q)}
+ finally{BUSY[path]=0}}
+function onWriteErr(e,path,q){const c=(e&&e.code)||'?';
+ if(c==='unavailable'&&(q.tries||0)<2){q.tries=(q.tries||0)+1;const n=PEND[path];if(n)dassign(q.f,n.f);PEND[path]=q;TMR[path]=setTimeout(()=>flush(path),1500+Math.random()*1000);return}
+ if(path==='cfg/main')REM.cfg=null;else delete REM.rooms[path.slice(6)];
+ if(c==='invalid_argument'||c==='revoked'){setRO(true);alert('Bạn không có quyền sửa dữ liệu (đang ở chế độ chỉ xem).\nHãy nhờ chủ ứng dụng cấp quyền “Được sửa”.')}
+ else setSync('⚠ Lỗi lưu ('+c+') – sẽ thử lại khi bạn sửa tiếp','#d93025')}
+function save(){
+ try{localStorage.setItem('nhatro_v1',JSON.stringify(S))}catch(e){}
+ if(!DB||RO||!READY)return;
+ const cur=cfgOf(),rc=REM.cfg;
+ if(!rc){enqueue('cfg/main',{},{full:cur});REM.cfg=cur}
+ else{const d={};if(cur.m!==rc.m)d.m=cur.m;['mgr','pay','supNote','supAmt'].forEach(k=>{if(cur[k]!==rc[k])d[k]=cur[k]});
+  const pd={};for(const k in cur.p)if(cur.p[k]!==rc.p[k])pd[k]=cur.p[k];if(Object.keys(pd).length)d.p=pd;
+  const sd={};if(cur.split.trash!==rc.split.trash)sd.trash=cur.split.trash;if(JSON.stringify(cur.split.partners)!==JSON.stringify(rc.split.partners))sd.partners=cur.split.partners;if(Object.keys(sd).length)d.split=sd;
+  if(Object.keys(d).length){enqueue('cfg/main',d);REM.cfg=cur}}
+ const ids={};
+ S.rooms.forEach(r=>{ids[r.id]=1;const c=roomOf(r),old=REM.rooms[r.id];
+  if(!old){NEWR[r.id]=Date.now()+8000;enqueue('rooms/'+r.id,{},{full:c,now:true});REM.rooms[r.id]=c}
+  else{const d={};RF.forEach(k=>{if(c[k]!==old[k])d[k]=c[k]});if(Object.keys(d).length){enqueue('rooms/'+r.id,d);REM.rooms[r.id]=c}}});
+ for(const id in REM.rooms)if(!ids[id]){enqueue('rooms/'+id,{},{del:true,now:true});delete REM.rooms[id]}}
+const saveHist=async k=>{if(!DB||RO)return;try{await DB.doc('hist/'+k).set(stamp(clone(S.hist[k])))}catch(e){setSync('⚠ Lỗi lưu lịch sử ('+((e&&e.code)||'?')+')','#d93025')}};
+const delHist=async k=>{if(!DB||RO)return;try{await DB.doc('hist/'+k).delete()}catch(e){setSync('⚠ Lỗi xóa lịch sử','#d93025')}};
+function setRO(v){RO=!!v;document.body.classList.toggle('ro',RO);if(RO)setSync('👁 Chế độ chỉ xem (không có quyền sửa)');applyRO()}
+function applyRO(){if(!RO)return;$$('#in input,#in button,#in select,#split input,#split button:not(.xl),#hist [data-hl],#hist [data-hx],#mgr,#pay').forEach(e=>e.disabled=true)}
+const NAMES={};
+async function nameOf(id){if(NAMES[id])return NAMES[id];try{const s=await FS.doc('users/'+id).get();NAMES[id]=(s.exists&&(s.data().name||s.data().email))||'Người khác'}catch(e){NAMES[id]='Người khác'}return NAMES[id]}
+async function toast(by,msg){const n=by?await nameOf(by):'Người khác',el=document.getElementById('toast');if(!el)return;el.textContent='🔄 '+n+' '+msg;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),3800)}
+function focusInfo(){const a=document.activeElement;if(!a||!a.dataset||!a.dataset.k||!a.closest('#tb'))return null;const r=S.rooms[+a.dataset.i];let ss=null,se=null;try{ss=a.selectionStart;se=a.selectionEnd}catch(e){}return{k:a.dataset.k,id:r&&r.id,ss,se}}
+function restoreFocus(fa){if(!fa)return;const j=S.rooms.findIndex(r=>r.id===fa.id);if(j<0)return;const el=document.querySelector('#tb input[data-k="'+fa.k+'"][data-i="'+j+'"]');if(el){el.focus();try{if(fa.ss!=null)el.setSelectionRange(fa.ss,fa.se)}catch(e){}}}
+function patchRow(j,fl){if(j<0)return;const tr=document.querySelector('#tb tr[data-r="'+j+'"]');if(!tr)return;
+ tr.querySelectorAll('input[data-k]').forEach(inp=>{if(document.activeElement===inp)return;const v=S.rooms[j][inp.dataset.k];inp.value=v==null?'':v});
+ rowUpd(j);if(fl){tr.classList.remove('flash');void tr.offsetWidth;tr.classList.add('flash')}}
+function refreshInputs(){const set=(id,v)=>{const e=document.getElementById(id);if(e&&document.activeElement!==e)e.value=v};
+ ['elec','water','trash','sur','free'].forEach(k=>set(k,S.p[k]));set('month',S.m);set('mgr',S.mgr);set('pay',S.pay);set('supn',S.supNote);set('supa',S.supAmt||'')}
+function refreshTab(){const t=document.querySelector('nav button.on').dataset.t,ae=document.activeElement;
+ if(t==='bill'){if(!ae||(ae.id!=='mgr'&&ae.id!=='pay')){if(ae!==$('#room'))opts();bills()}}
+ if(t==='sum')sum();
+ if(t==='split'&&!(ae&&ae.closest&&ae.closest('#split')))split();
+ if(t==='hist')hist();
+ applyRO()}
+function chkReady(){if(!READY&&RDY.c&&RDY.r){READY=true;if(!RO)setSync('🟢 Đồng bộ trực tiếp','var(--ok)')}}
+function applyCfg(snap,first){if(!snap.exists)return;const x=snap.data(),P='cfg/main';let ch=false;
+ ['m','mgr','pay','supNote','supAmt'].forEach(k=>{if(x[k]!==undefined&&!isProt(P,k)&&S[k]!==x[k]){S[k]=x[k];ch=true}});
+ if(x.p)for(const k in x.p)if(!isProt(P,'p.'+k)&&S.p[k]!==x.p[k]){S.p[k]=x.p[k];ch=true}
+ if(x.split){const sp=x.split;
+  if(sp.trash!==undefined&&!isProt(P,'split.trash')&&S.split.trash!==sp.trash){S.split.trash=sp.trash;ch=true}
+  if(sp.partners&&!isProt(P,'split.partners')&&JSON.stringify(sp.partners)!==JSON.stringify(S.split.partners)){S.split.partners=clone(sp.partners);ch=true}}
+ REM.cfg=cfgOf();cacheLocal();RDY.c=1;chkReady();
+ if(ch){refreshInputs();S.rooms.forEach((_,j)=>rowUpd(j));stats();refreshTab();if(!first&&x.by&&x.by!==UID)toast(x.by,'vừa cập nhật thiết lập chung')}}
+function applyRooms(snap,first){if(snap.metadata&&snap.metadata.fromCache&&snap.empty)return;
+ const now=Date.now(),byId={},fa=focusInfo();S.rooms.forEach(r=>byId[r.id]=r);
+ const out=[],changed=[],seen={};let by=null;
+ snap.docs.forEach(d=>{const id=d.id;if(GONE[id]>now)return;const x=d.data();seen[id]=1;let r=byId[id],ch=false;
+  if(!r){r=normRoom({id});ch=true}
+  RF.forEach(k=>{if(x[k]===undefined||isProt('rooms/'+id,k))return;if(r[k]!==x[k]){r[k]=x[k];ch=true}});
+  if(ch){changed.push(id);if(x.by&&x.by!==UID)by=x.by}
+  out.push(r)});
+ S.rooms.forEach(r=>{if(!seen[r.id]&&NEWR[r.id]>now)out.push(r)});
+ out.sort((a,b)=>(+a.o||0)-(+b.o||0));
+ const same=out.length===S.rooms.length&&out.every((r,j)=>r===S.rooms[j]);
+ S.rooms=out;REM.rooms={};out.forEach(r=>{REM.rooms[r.id]=roomOf(r)});
+ if(S.sel!=='all'&&!(S.sel<S.rooms.length))S.sel=0;
+ cacheLocal();RDY.r=1;chkReady();
+ if(!same){table();stats();restoreFocus(fa)}
+ else{changed.forEach(id=>patchRow(S.rooms.findIndex(r=>r.id===id),!first&&by));stats()}
+ refreshTab();
+ if(!first&&by&&changed.length){const one=changed.length===1?S.rooms.find(r=>r.id===changed[0]):null;toast(by,one?'vừa sửa phòng '+one.n:'vừa cập nhật '+changed.length+' phòng')}}
+function applyHist(snap){if(snap.metadata&&snap.metadata.fromCache&&snap.empty)return;const h={};snap.docs.forEach(d=>h[d.id]=d.data());S.hist=h;cacheLocal();if(document.querySelector('nav button.on').dataset.t==='hist')hist()}
+async function migrate(){
+ let src=null;try{const st=await DB.doc('app/state').get();if(st.exists)src=st.data()}catch(e){}
+ const b=src||clone(S),rooms=(b.rooms||S.rooms).map((r,j)=>normRoom({...clone(r),id:r.id||'r'+String(j+1).padStart(2,'0'),o:r.o==null?j:r.o}));
+ for(const r of rooms)await DB.doc('rooms/'+r.id).set(stamp(roomOf(r)));
+ try{const hs=await DB.collection('hist').get();if(hs.empty&&S.hist)for(const k in S.hist)await DB.doc('hist/'+k).set(stamp(clone(S.hist[k])))}catch(e){}
+ await DB.doc('cfg/main').set(stamp({m:b.m||S.m,p:b.p||S.p,mgr:b.mgr!=null?b.mgr:S.mgr,pay:b.pay!=null?b.pay:S.pay,supNote:b.supNote!=null?b.supNote:S.supNote,supAmt:b.supAmt!=null?b.supAmt:S.supAmt,split:b.split||S.split}))}
+async function ensureData(){
+ const has=async()=>(await DB.doc('cfg/main').get()).exists;
+ if(await has())return;if(RO)return;
+ const holder=UID||('t'+Math.random().toString(36).slice(2));
+ for(let i=0;i<6;i++){let got=false;try{got=(await DB.doc('cfg/init').acquire({holder,ttlMs:20000})).acquired}catch(e){}
+  if(got){if(await has())return;await migrate();return}
+  await new Promise(r=>setTimeout(r,1500));if(await has())return}}
+function subscribe(){const st={c:true,r:true},err=e=>{const c=(e&&e.code)||'?';if(c==='revoked')setRO(true);else setSync('⚠ Mất kết nối ('+c+')','#d93025')};
+ DB.doc('cfg/main').onSnapshot(sn=>{applyCfg(sn,st.c);st.c=false},err);
+ DB.collection('rooms').orderBy('o').onSnapshot(sn=>{applyRooms(sn,st.r);st.r=false},err);
+ DB.collection('hist').onSnapshot(sn=>applyHist(sn),err)}
+const f=n=>Math.round(n||0).toLocaleString('vi-VN');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function calc(r,P){const p=P||S.p,n=+r.ppl||0,kw=(r.neu===''||r.neu==null)?0:Math.max(+r.neu-(+r.old||0),0);
+ const e=kw*p.elec,w=n*p.water,t=(r.trash===''||r.trash==null)?(r.kiot?0:+p.trash):(+r.trash||0),su=r.kiot?0:Math.max(n-p.free,0)*p.sur,rent=+r.rent||0,g=rent+e+w+t+su,sup=+r.sup||0,cur=g-sup;
+ return{kw,e,w,t,su,rent,g,sup,cur,debt:+r.debt||0,tot:cur+(+r.debt||0)}}
+const ml=()=>{const[y,m]=S.m.split('-');return`Tháng ${+m} năm ${y}`};
+function stats(){let a=0,e=0,w=0,d=0,u=0;S.rooms.forEach(r=>{const c=calc(r);a+=c.tot;e+=c.e;w+=c.w;d+=c.debt;u+=c.sup});
+ $('#stats').innerHTML=[['Tổng phải thu',a],['Tiền điện',e],['Tiền nước',w],['Nợ cũ / điều chỉnh',d],['Hỗ trợ đã trừ',u]].map(x=>`<div class="stat"><span>${x[0]}</span><b>${f(x[1])} đ</b></div>`).join('');
+ $('#sub').textContent=ml()+' · '+S.rooms.length+' phòng'}
+const LB={n:'Phòng',t:'Người thuê',old:'Điện cũ',neu:'Điện mới',ppl:'Số người',rent:'Tiền phòng',debt:'Nợ cũ (+/−)',sup:'Hỗ trợ (−)'};
+const WD={old:'width:105px',neu:'width:105px',ppl:'width:72px',rent:'width:150px;font-weight:600',debt:'width:125px',sup:'width:125px'};
+function updFoot(){const ft=$('#tfr');if(!ft)return;let k=0,e=0,w=0,t=0,su=0,tot=0,ppl=0,rent=0,debt=0,sup=0;
+ S.rooms.forEach(r=>{const c=calc(r);k+=c.kw;e+=c.e;w+=c.w;t+=c.t;su+=c.su;tot+=c.tot;ppl+=+r.ppl||0;rent+=c.rent;debt+=c.debt;sup+=c.sup});
+ ft.innerHTML=`<td colspan="4">TỔNG</td><td>${ppl}</td><td>${f(rent)}</td><td>${f(debt)}</td><td>${f(sup)}</td><td></td><td class="n">${f(k)}</td><td class="n">${f(e)}</td><td class="n">${f(w)}</td><td class="n">${f(t)}</td><td class="n">${f(su)}</td><td class="n">${f(tot)}</td><td></td>`}
+function table(){const h='<thead><tr><th>Phòng</th><th>Người thuê</th><th>Điện cũ</th><th>Điện mới</th><th>Số người</th><th>Tiền phòng</th><th>Nợ cũ (+/−)</th><th>Hỗ trợ (−)</th><th title="Để trống = dùng giá mặc định (Kiot = 0)">Rác (đ)</th><th class="n">Kw</th><th class="n">Điện</th><th class="n">Nước</th><th class="n">Rác</th><th class="n">Phụ thu</th><th class="n">Tổng cộng</th><th></th></tr></thead>';
+ const i=(k,j,t='number',w='')=>`<td data-l="${LB[k]||''}"><input type="${t}" data-k="${k}" data-i="${j}" value="${esc(S.rooms[j][k])}" style="${w||WD[k]||''}"></td>`;
+ $('#tb').innerHTML=h+'<tbody>'+S.rooms.map((r,j)=>{const c=calc(r);return`<tr data-r="${j}">${i('n',j,'text','width:80px')}${i('t',j,'text','min-width:160px')}${i('old',j)}${i('neu',j)}${i('ppl',j,'number','width:70px')}${i('rent',j)}${i('debt',j)}${i('sup',j)}<td data-l="Rác riêng (đ) – để trống = mặc định"><input type="number" data-k="trash" data-i="${j}" value="${esc(r.trash??'')}" placeholder="${r.kiot?0:S.p.trash}" style="width:115px"></td><td class="n c-kw" data-l="Kw">${f(c.kw)}</td><td class="n c-e" data-l="Điện (đ)">${f(c.e)}</td><td class="n c-w" data-l="Nước (đ)">${f(c.w)}</td><td class="n c-t" data-l="Tiền rác">${f(c.t)}</td><td class="n c-s" data-l="Phụ thu">${f(c.su)}</td><td class="n tot c-tot" data-l="Tổng cộng">${f(c.tot)}</td><td data-l=""><button class="btn" data-del="${j}" title="Xóa">✕</button></td></tr>`}).join('')+'</tbody><tfoot><tr id="tfr"></tr></tfoot>';updFoot();applyRO()}
+function rowUpd(j){const c=calc(S.rooms[j]),tr=$(`tr[data-r="${j}"]`);if(!tr)return;
+ [['kw','kw'],['e','e'],['w','w'],['t','t'],['s','su'],['tot','tot']].forEach(([a,b])=>tr.querySelector('.c-'+a).textContent=f(c[b]));updFoot()}
+function sheet(r){const c=calc(r),p=S.p;
+ const el=r.neu===''||!c.kw?'':`( ${r.neu} − ${r.old} ) = ${c.kw} Kw × ${f(p.elec)} đ/Kw`;
+ return`<div class="sheet"><h3>THÔNG BÁO TIỀN PHÒNG TRỌ</h3><div class="c">${ml()}</div>
+ <div>Kính gửi: <b>${esc(r.t)||'.............'}</b></div><div>Sử dụng phòng số: <b>${esc(r.n)}</b></div>
+ <p style="margin:10px 0 0">Xin thông báo, tiền thuê phòng và các chi phí dịch vụ khác trong ${ml().toLowerCase()}. Cụ thể như sau:</p>
+ <table><tr><th>STT</th><th>Khoản</th><th>Chi tiết</th><th class="r">Thành tiền</th></tr>
+ <tr><td>1</td><td>Phòng</td><td></td><td class="r">${f(c.rent)}</td></tr>
+ <tr><td>2</td><td>Điện</td><td>${el}</td><td class="r">${f(c.e)}</td></tr>
+ <tr><td>3</td><td>Nước</td><td>${f(p.water)} / người / tháng × ${+r.ppl||0} người</td><td class="r">${f(c.w)}</td></tr>
+ <tr><td>4</td><td>Rác</td><td></td><td class="r">${f(c.t)}</td></tr>
+ <tr><td>5</td><td>Phụ thu</td><td>${c.su?`Vượt ${(+r.ppl)-p.free} người`:''}</td><td class="r">${f(c.su)}</td></tr>
+ <tr><td>6</td><td>Hỗ trợ</td><td>${c.sup?esc(S.supNote):''}</td><td class="r">${c.sup?'−'+f(c.sup):'0'}</td></tr>
+ <tr><td colspan="3" class="r"><b>Cộng:</b></td><td class="r"><b>${f(c.cur)}</b></td></tr></table>
+ <b>Phần thanh toán:</b><div>- Nợ cũ / điều chỉnh: ${f(c.debt)} đ</div><div>- Phải trả tháng này: ${f(c.cur)} đ</div>
+ <div class="sum">Tổng cộng: ${f(c.tot)} đ</div><div style="margin-top:6px">Chi tiết thanh toán: ${esc(S.pay)}</div>
+ <div class="sig">Quản lý Nhà trọ<br><br><br><b>${esc(S.mgr)}</b></div></div>`}
+const billRooms=()=>S.sel==='all'?S.rooms.filter(r=>r.t):[S.rooms[S.sel]].filter(Boolean);
+function bills(){$('#sheets').innerHTML=billRooms().map(sheet).join('');schedulePrep()}
+function sum(){let T={kw:0,e:0,w:0,t:0,su:0,sup:0,rent:0,debt:0,tot:0};
+ const b=S.rooms.map(r=>{const c=calc(r);for(const k in T)T[k]+=c[k];return`<tr><td>${esc(r.n)}</td><td>${esc(r.t)}</td><td class="n">${f(c.kw)}</td><td class="n">${f(c.rent)}</td><td class="n">${f(c.e)}</td><td class="n">${f(c.w)}</td><td class="n">${f(c.t)}</td><td class="n">${f(c.su)}</td><td class="n">${f(c.sup)}</td><td class="n">${f(c.debt)}</td><td class="n tot">${f(c.tot)}</td></tr>`}).join('');
+ $('#sumnote').textContent=T.sup?'Đã trừ hỗ trợ “'+S.supNote+'”: '+f(T.sup)+' đ':'Chưa có khoản hỗ trợ nào (nhập ở cột “Hỗ trợ” hoặc dùng nút Áp dụng ở tab Nhập số tháng)';$('#st').innerHTML='<thead><tr><th>Phòng</th><th>Người thuê</th><th class="n">Kw</th><th class="n">Tiền phòng</th><th class="n">Điện</th><th class="n">Nước</th><th class="n">Rác</th><th class="n">Phụ thu</th><th class="n">Hỗ trợ</th><th class="n">Nợ cũ</th><th class="n">Tổng cộng</th></tr></thead><tbody>'+b+`</tbody><tfoot><tr><td colspan="2">TỔNG</td><td class="n">${f(T.kw)}</td><td class="n">${f(T.rent)}</td><td class="n">${f(T.e)}</td><td class="n">${f(T.w)}</td><td class="n">${f(T.t)}</td><td class="n">${f(T.su)}</td><td class="n">${f(T.sup)}</td><td class="n">${f(T.debt)}</td><td class="n">${f(T.tot)}</td></tr></tfoot>`}
+function splitCalc(RS,P,SP){RS=RS||S.rooms;P=P||S.p;const sp=SP||S.split;let base=0,sup=0,el=0,kiot=0;
+ RS.forEach(r=>{const c=calc(r,P);if(r.kiot){kiot+=c.rent-c.sup;base+=c.t}else{base+=c.g;sup+=c.sup;el+=c.e}});
+ const net=base-sup-el-(+sp.trash||0),n=sp.partners.length||1,fl=sp.partners.filter(p=>p.k).length,per=net/n,bonus=fl?kiot/fl:0;
+ return{base,sup,el,kiot,net,per,bonus,rows:sp.partners.map(p=>({n:p.n,k:p.k,base:per,extra:p.k?bonus:0,v:per+(p.k?bonus:0)}))}}
+function split(){const c=splitCalc();$('#strash').value=S.split.trash;
+ $('#sstats').innerHTML=[['Thu các phòng trọ',c.base],['Trừ tiền hỗ trợ',c.sup],['Trừ tiền điện',c.el],['Trừ chi phí rác',+S.split.trash||0],['Còn lại chia',c.net],['Tiền thuê Kiot (sau hỗ trợ)',c.kiot]].map(x=>`<div class="stat"><span>${x[0]}</span><b>${f(x[1])} đ</b></div>`).join('');
+ $('#spt').innerHTML='<thead><tr><th>Người nhận</th><th>Nhận thêm tiền Kiot</th><th class="n">Phần chia đều</th><th class="n">Thêm từ Kiot</th><th class="n">Tổng nhận</th><th></th></tr></thead><tbody>'+
+ S.split.partners.map((p,j)=>`<tr><td><input data-pn="${j}" value="${esc(p.n)}"></td><td><input type="checkbox" data-pk="${j}" ${p.k?'checked':''} style="width:auto"></td><td class="n">${f(c.rows[j].base)}</td><td class="n">${f(c.rows[j].extra)}</td><td class="n tot">${f(c.rows[j].v)}</td><td><button class="btn" data-dp="${j}">✕</button></td></tr>`).join('')+
+ `</tbody><tfoot><tr><td colspan="4">TỔNG</td><td class="n">${f(c.rows.reduce((a,x)=>a+x.v,0))}</td><td></td></tr></tfoot>`}
+$('#strash').oninput=e=>{S.split.trash=+e.target.value||0;save();split()};
+$('#spt').addEventListener('change',e=>{const d=e.target.dataset;if(d.pk!=null){S.split.partners[d.pk].k=e.target.checked?1:0;save();split()}});
+$('#spt').addEventListener('input',e=>{const d=e.target.dataset;if(d.pn!=null){S.split.partners[d.pn].n=e.target.value;save()}});
+$('#spt').addEventListener('click',e=>{const d=e.target.dataset.dp;if(d!=null){S.split.partners.splice(d,1);save();split()}});
+$('#addp').onclick=()=>{S.split.partners.push({n:'Người mới',k:0});save();split()};
+async function exportX(){
+ if(!window.XLSX){alert('Không tải được thư viện Excel (kiểm tra mạng).');return}
+ const rows=[['Phòng','Người thuê','Điện cũ','Điện mới','Số Kw','Số người','Tiền phòng','Tiền điện','Tiền nước','Rác','Phụ thu','Hỗ trợ (−)','Nợ cũ','Tổng cộng']];
+ const T=Array(14).fill(0);S.rooms.forEach(r=>{const c=calc(r),v=[r.n,r.t,+r.old||0,r.neu===''?'':+r.neu,c.kw,+r.ppl||0,c.rent,c.e,c.w,c.t,c.su,c.sup,c.debt,c.tot];rows.push(v);[4,6,7,8,9,10,11,12,13].forEach(i=>T[i]+=v[i])});
+ rows.push(['TỔNG','','','',T[4],'',T[6],T[7],T[8],T[9],T[10],T[11],T[12],T[13]]);rows.push([],['Nội dung hỗ trợ:',S.supNote]);
+ const c=splitCalc(),sp=[['CHIA TIỀN '+ml().toUpperCase()],[],['Thu các phòng trọ',c.base],['Trừ tiền hỗ trợ',c.sup],['Trừ tiền điện các phòng',c.el],['Trừ chi phí rác',+S.split.trash||0],['Còn lại chia',c.net],['Tiền thuê Kiot (sau hỗ trợ)',c.kiot],[],['Người nhận','Phần chia đều','Thêm từ Kiot','Tổng nhận']];
+ c.rows.forEach(r=>sp.push([r.n,Math.round(r.base),Math.round(r.extra),Math.round(r.v)]));
+ const wb=XLSX.utils.book_new(),w1=XLSX.utils.aoa_to_sheet(rows),w2=XLSX.utils.aoa_to_sheet(sp);
+ w1['!cols']=[{wch:9},{wch:24},...Array(12).fill({wch:12})];w2['!cols']=[{wch:28},{wch:16},{wch:16},{wch:16}];
+ XLSX.utils.book_append_sheet(wb,w1,'Tổng hợp');XLSX.utils.book_append_sheet(wb,w2,'Chia tiền');
+ const buf=XLSX.write(wb,{type:'array',bookType:'xlsx'}),name='TienNhaTro-'+S.m+'.xlsx';
+ let dl=null;try{dl=window.claude?await claude.use('downloads'):null}catch(e){}
+ if(dl){try{await dl.save({filename:name,data:buf})}catch(e){if(e&&e.code!=='declined')alert('Không lưu được file: '+(e.message||e.code))}}
+ else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf]));a.download=name;a.click()}}
+$$('.xl').forEach(b=>b.onclick=exportX);
+const mlk=k=>{const[y,m]=k.split('-');return'Tháng '+(+m)+'/'+y};
+const snap=()=>({rooms:JSON.parse(JSON.stringify(S.rooms)),p:{...S.p},split:JSON.parse(JSON.stringify(S.split))});
+function hsum(h){let tot=0,e=0,w=0;h.rooms.forEach(r=>{const c=calc(r,h.p);tot+=c.tot;e+=c.e;w+=c.w});return{tot,e,w,net:splitCalc(h.rooms,h.p,h.split).net}}
+function hist(){const ks=Object.keys(S.hist).sort(),D=ks.map(k=>({k,...hsum(S.hist[k])}));
+ if(!D.length){$('#hchart').innerHTML='<p style="color:var(--mu)">Chưa có tháng nào. Bấm "Lưu vào lịch sử" hoặc "Chốt tháng" ở tab Nhập số tháng.</p>';$('#ht').innerHTML='';return}
+ const mx=Math.max(...D.map(d=>d.tot),1);
+ $('#hchart').innerHTML='<div style="display:flex;align-items:flex-end;gap:8px;height:170px;overflow-x:auto;padding-top:8px">'+D.slice(-12).map(d=>`<div style="flex:1;min-width:52px;text-align:center;font-size:11px;color:var(--mu)"><div style="color:var(--tx);font-weight:600">${(d.tot/1e6).toFixed(1)}tr</div><div style="height:${Math.max(d.tot/mx*120,3)}px;background:var(--pr);border-radius:5px 5px 0 0;margin:2px 6px 0"></div>${d.k.slice(5)}/${d.k.slice(2,4)}</div>`).join('')+'</div>';
+ $('#ht').innerHTML='<thead><tr><th>Tháng</th><th class="n">Tổng thu</th><th class="n">Tiền điện</th><th class="n">Tiền nước</th><th class="n">Còn lại chia</th><th></th></tr></thead><tbody>'+D.slice().reverse().map(d=>`<tr><td><b>${mlk(d.k)}</b></td><td class="n tot">${f(d.tot)}</td><td class="n">${f(d.e)}</td><td class="n">${f(d.w)}</td><td class="n">${f(d.net)}</td><td><button class="btn" data-hv="${d.k}">Xem</button> <button class="btn" data-hl="${d.k}">Nạp lại</button> <button class="btn" data-hx="${d.k}">✕</button></td></tr>`).join('')+'</tbody>'}
+function loadHist(k){const h=S.hist[k];S.m=k;S.rooms=h.rooms.map((r,j)=>{r=clone(r);if(!r.id){const m=S.rooms.find(x=>x.n===r.n);r.id=m?m.id:nid()}if(r.o==null){const m=S.rooms.find(x=>x.id===r.id);r.o=m?m.o:j}return normRoom(r)});S.p={...h.p};S.split=JSON.parse(JSON.stringify(h.split));save();refreshAll();tab('in')}
+function hview(k){const h=S.hist[k];$('#hdc').classList.remove('hide');$('#hdt').textContent='Chi tiết '+mlk(k);
+ $('#hd').innerHTML='<thead><tr><th>Phòng</th><th>Người thuê</th><th class="n">Kw</th><th class="n">Phòng</th><th class="n">Điện</th><th class="n">Nước</th><th class="n">Rác</th><th class="n">Phụ thu</th><th class="n">Hỗ trợ</th><th class="n">Nợ cũ</th><th class="n">Tổng</th></tr></thead><tbody>'+h.rooms.map(r=>{const c=calc(r,h.p);return`<tr><td>${esc(r.n)}</td><td>${esc(r.t)}</td><td class="n">${f(c.kw)}</td><td class="n">${f(c.rent)}</td><td class="n">${f(c.e)}</td><td class="n">${f(c.w)}</td><td class="n">${f(c.t)}</td><td class="n">${f(c.su)}</td><td class="n">${f(c.sup)}</td><td class="n">${f(c.debt)}</td><td class="n tot">${f(c.tot)}</td></tr>`}).join('')+'</tbody>';$('#hdc').scrollIntoView({behavior:'smooth'})}
+$('#hdx').onclick=()=>$('#hdc').classList.add('hide');
+$('#ht').addEventListener('click',e=>{const d=e.target.dataset;
+ if(d.hv)hview(d.hv);
+ if(d.hl&&confirm('Nạp lại '+mlk(d.hl)+' vào bảng nhập? Dữ liệu tháng hiện tại sẽ bị thay thế.'))loadHist(d.hl)
+ if(d.hx&&confirm('Xóa '+mlk(d.hx)+' khỏi lịch sử?')){delHist(d.hx);delete S.hist[d.hx];save();$('#hdc').classList.add('hide');hist()}});
+$('#savem').onclick=()=>{if(S.hist[S.m]&&!confirm(mlk(S.m)+' đã có trong lịch sử. Ghi đè?'))return;S.hist[S.m]=snap();saveHist(S.m);save();alert('Đã lưu '+mlk(S.m)+' vào lịch sử.')};
+function opts(){$('#room').innerHTML='<option value="all" '+(S.sel==='all'?'selected':'')+'>★ Tất cả phòng (có người thuê)</option>'+S.rooms.map((r,j)=>`<option value="${j}" ${j==S.sel?'selected':''}>${esc(r.n)}${r.t?' – '+esc(r.t):''}</option>`).join('')}
+function tab(t){$$('main>section').forEach(s=>s.classList.toggle('hide',s.id!=t));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));
+ if(t=='bill'){opts();bills(false)}if(t=='sum')sum();if(t=='split')split();if(t=='hist')hist();if(t=='log')logv();if(t=='acc')renderAcc();applyRO()}
+$$('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+['elec','water','trash','sur','free'].forEach(k=>{const e=$('#'+k);e.value=S.p[k];e.oninput=()=>{S.p[k]=+e.value||0;save();stats();S.rooms.forEach((_,j)=>rowUpd(j))}});
+$('#month').value=S.m;$('#month').onchange=e=>{const v=e.target.value;if(!v)return;
+ if(v!==S.m&&S.hist[v]&&confirm('Đã có dữ liệu '+mlk(v)+' trong lịch sử. Nạp lại để xem/sửa? (Dữ liệu đang nhập chưa lưu sẽ mất)')){loadHist(v);return}
+ S.m=v;save();stats()};
+$('#supn').value=S.supNote;$('#supa').value=S.supAmt||'';
+$('#supn').oninput=e=>{S.supNote=e.target.value;$('#supw').textContent=numOnly(e.target.value)?'⚠ Ô này chỉ ghi chữ. Số tiền nhập ở ô bên cạnh.':'';save()};
+$('#supn').onchange=()=>{if(fixSup()){$('#supn').value=S.supNote;$('#supa').value=S.supAmt;$('#supw').textContent='';save();alert('Ô “Nội dung” chỉ để ghi chữ. Tôi đã chuyển số bạn nhập sang ô “Số tiền hỗ trợ mỗi phòng”.\nBấm “Áp dụng cho các phòng có người thuê” để trừ vào từng phòng.')}};
+$('#supa').oninput=e=>{S.supAmt=+e.target.value||0;save()};
+$('#supapply').onclick=()=>{if(!S.supAmt){alert('Nhập “Số tiền hỗ trợ mỗi phòng” trước.');return}
+ const k=$('#supk').checked,rs=S.rooms.filter(r=>r.t&&(!r.kiot||k));
+ if(!rs.length){alert('Chưa có phòng nào có tên người thuê.');return}
+ if(!confirm('Đặt hỗ trợ '+f(S.supAmt)+' đ cho '+rs.length+' phòng có người thuê'+(k?' (gồm cả Kiot)':' (không gồm Kiot)')+'?\nSố tiền sẽ được trừ vào phiếu, tổng hợp và chia tiền.'))return;
+ rs.forEach(r=>r.sup=S.supAmt);save();table();stats()};
+$('#supclear').onclick=()=>{if(confirm('Xóa hỗ trợ của tất cả phòng?')){S.rooms.forEach(r=>r.sup=0);save();table();stats()}};
+$('#mgr').value=S.mgr;$('#mgr').oninput=e=>{S.mgr=e.target.value;save();bills(false)};
+$('#pay').value=S.pay;$('#pay').oninput=e=>{S.pay=e.target.value;save();bills(false)};
+$('#room').onchange=e=>{S.sel=e.target.value==='all'?'all':+e.target.value;save();bills(false)};
+$('#tb').addEventListener('input',e=>{const i=e.target.dataset;if(i.k==null)return;const r=S.rooms[i.i],num=['old','neu','ppl','rent','debt','sup','trash'].includes(i.k);
+ r[i.k]=num&&e.target.value!==''?+e.target.value:e.target.value;if(i.k=='neu'&&e.target.value==='')r.neu='';save();rowUpd(+i.i);stats()});
+$('#tb').addEventListener('click',e=>{const d=e.target.dataset.del;if(d!=null&&confirm('Xóa phòng '+S.rooms[d].n+'?')){GONE[S.rooms[d].id]=Date.now()+8000;S.rooms.splice(d,1);S.sel=0;save();table();stats()}});
+$('#add').onclick=()=>{const o=Math.max(-1,...S.rooms.map(r=>+r.o||0))+1;S.rooms.push(normRoom({id:nid(),o,n:'Mới',t:'',rent:1000000,old:0,neu:'',ppl:1,debt:0,sup:0,trash:'',kiot:false}));save();table();stats()};
+$('#close').onclick=async()=>{const miss=S.rooms.filter(r=>r.t&&r.neu==='').map(r=>r.n);
+ if(!confirm('Lưu '+mlk(S.m)+' vào lịch sử và sang tháng mới?\n• Số điện mới → số điện cũ của tháng sau\n• Nợ cũ và tiền hỗ trợ được đưa về 0'+(miss.length?'\n⚠ Chưa nhập số điện mới: '+miss.join(', '):'')))return;
+ if(DB&&!RO){try{const l=await DB.doc('cfg/lock').acquire({holder:UID||'anon',ttlMs:15000});if(!l.acquired){alert('Có người khác vừa chốt tháng, vui lòng đợi vài giây rồi kiểm tra lại số liệu.');return}}catch(e){}}
+ const ck=S.m;S.hist[ck]=snap();saveHist(ck);S.rooms.forEach(r=>{if(r.neu!=='')r.old=r.neu;r.neu='';r.debt=0;r.sup=0});
+ const[y,m]=ck.split('-').map(Number),d=new Date(y,m,1);S.m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');$('#month').value=S.m;save();table();stats()};
+$('#print1').onclick=()=>{bills(false);window.print()};
+function refreshAll(){fixSup();refreshInputs();table();stats();tab(document.querySelector('nav button.on').dataset.t)}
+const authMsg=e=>({'auth/invalid-credential':'Sai email hoặc mật khẩu.','auth/wrong-password':'Sai email hoặc mật khẩu.','auth/user-not-found':'Sai email hoặc mật khẩu.','auth/invalid-email':'Email không hợp lệ.','auth/email-already-in-use':'Email này đã có tài khoản, hãy bấm Đăng nhập.','auth/weak-password':'Mật khẩu tối thiểu 6 ký tự.','auth/operation-not-allowed':'Chưa bật phương thức đăng nhập này trong Firebase Authentication.','auth/unauthorized-domain':'Tên miền này chưa được thêm vào Authentication > Settings > Authorized domains.','auth/too-many-requests':'Thử quá nhiều lần, hãy đợi một lúc.','auth/network-request-failed':'Mất kết nối mạng.'}[e&&e.code]||('Lỗi: '+((e&&e.code)||e)));
+function bindLogin(auth){
+ const err=m=>{$('#lerr').textContent=m||''},em=()=>$('#lem').value.trim(),pw=()=>$('#lpw').value;
+ $('#lin').onclick=async()=>{err();try{await auth.signInWithEmailAndPassword(em(),pw())}catch(e){err(authMsg(e))}};
+ $('#lup').onclick=async()=>{err();const nm=$('#lname').value.trim();
+  if(!nm){err('Nhập họ tên để chủ app nhận ra bạn.');return}
+  PENDNAME=nm;
+  try{const c=await auth.createUserWithEmailAndPassword(em(),pw());try{await c.user.updateProfile({displayName:nm})}catch(e){}}
+  catch(e){PENDNAME='';err(authMsg(e))}};
+ $('#lpw').addEventListener('keydown',e=>{if(e.key==='Enter')$('#lin').click()});
+ const out=async()=>{await auth.signOut();location.reload()};$('#lout').onclick=out;$('#pout').onclick=out}
+let STARTED=false;
+let PENDNAME='',USERS=[],MEMS={};
+async function startUser(u,fs){
+ if(STARTED)return;STARTED=true;
+ $('#login').classList.remove('on');$('#lout').style.display='inline-block';
+ UID=u.uid;ME={uid:u.uid,name:PENDNAME||u.displayName||u.email||'',email:u.email||''};FS=fs;
+ try{await fs.doc('users/'+UID).set({name:ME.name,email:ME.email})}catch(e){}
+ let role=UID===OWNER_UID?'owner':'none';
+ if(role==='none'){try{const m=await fs.doc('members/'+UID).get();if(m.exists)role=m.data().role||'viewer'}catch(e){}}
+ if(role!=='owner')fs.doc('members/'+UID).onSnapshot(sn=>{const r=sn.exists?(sn.data().role||'viewer'):'none';if(r!==role)location.reload()},()=>{});
+ if(role==='none'){DB=null;$('#pem').textContent=ME.name||ME.email;$('#puid').value=UID;$('#pend').classList.add('on');setSync('⏳ Chờ chủ app cấp quyền','#d93025');return}
+ DB=makeDB(fs);
+ if(role==='viewer'){setRO(true);setSync('👁 Chỉ xem · '+(ME.name||ME.email))}
+ if(role==='owner'){$('#navacc').classList.remove('hide');watchAcc(fs)}
+ if(!RO)setSync('Đang kết nối…');
+ try{await ensureData();subscribe()}catch(e){DB=null;setSync('⚠ Không kết nối được CSDL – đang lưu tạm trên trình duyệt','#d93025')}}
+async function initDb(){
+ if(FB_MISSING||!window.firebase){setSync('⚠ Chưa dán firebaseConfig – đang lưu trên trình duyệt này (không đồng bộ)','#d93025');return}
+ try{firebase.initializeApp(FIREBASE_CONFIG)}catch(e){}
+ const auth=firebase.auth(),fs=firebase.firestore();
+ try{await fs.enablePersistence({synchronizeTabs:true})}catch(e){}
+ bindLogin(auth);setSync('Đang đăng nhập…');
+ auth.onAuthStateChanged(u=>{if(u)startUser(u,fs);else{$('#login').classList.add('on');setSync('Chưa đăng nhập')}})}
+const NM=p=>{if(p.startsWith('rooms/')){const r=S.rooms.find(x=>'rooms/'+x.id===p);return'Phòng '+(r?r.n:p.slice(6))}if(p==='cfg/main')return'Thiết lập chung';if(p.startsWith('hist/'))return'Lịch sử '+p.slice(5);return p};
+async function logv(){
+ const t=$('#lgt');if(!DB||!FS){t.innerHTML='<tbody><tr><td>Chưa kết nối Firebase.</td></tr></tbody>';return}
+ t.innerHTML='<tbody><tr><td>Đang tải…</td></tr></tbody>';
+ try{const sn=await FS.collection('log').orderBy('at','desc').limit(100).get();
+  t.innerHTML='<thead><tr><th>Thời gian</th><th>Người sửa</th><th>Mục</th><th>Thao tác</th><th>Nội dung</th></tr></thead><tbody>'+(sn.docs.length?sn.docs.map(d=>{const x=d.data(),tm=x.at&&x.at.toDate?x.at.toDate().toLocaleString('vi-VN'):'';
+   return`<tr><td>${esc(tm)}</td><td>${esc(x.name||x.email||'')}</td><td>${esc(NM(x.path||''))}</td><td>${esc(x.op||'')}</td><td style="white-space:normal;max-width:380px;word-break:break-all;font-size:12px">${esc((x.data||'').slice(0,160))}</td></tr>`}).join(''):'<tr><td colspan="5">Chưa có thay đổi nào.</td></tr>')+'</tbody>'
+ }catch(e){t.innerHTML='<tbody><tr><td>Không đọc được nhật ký ('+esc((e&&e.code)||'?')+')</td></tr></tbody>'}
+}
+function watchAcc(fs){
+ fs.collection('users').onSnapshot(sn=>{USERS=sn.docs.map(d=>({id:d.id,...d.data()}));accUpd()},()=>{});
+ fs.collection('members').onSnapshot(sn=>{MEMS={};sn.docs.forEach(d=>MEMS[d.id]=d.data().role||'viewer');accUpd()},()=>{})}
+const isPend=u=>u.id!==OWNER_UID&&!MEMS[u.id];
+function accUpd(){const n=USERS.filter(isPend).length;$('#navacc').textContent='Tài khoản'+(n?' 🔴 '+n:'');
+ if(document.querySelector('nav button.on').dataset.t==='acc')renderAcc()}
+function renderAcc(){
+ const o=(v,r,l)=>`<option value="${v}"${r===v?' selected':''}>${l}</option>`;
+ const rows=USERS.slice().sort((a,b)=>(isPend(a)?0:1)-(isPend(b)?0:1)||String(a.name||'').localeCompare(String(b.name||''),'vi'));
+ $('#ust').innerHTML='<thead><tr><th>Họ tên</th><th>Email</th><th>Trạng thái</th><th>Quyền</th></tr></thead><tbody>'+(rows.length?rows.map(u=>{const own=u.id===OWNER_UID,r=MEMS[u.id]||'none';
+  const st=own?'Chủ app':r==='editor'?'Được sửa':r==='viewer'?'Chỉ xem':'Mới đăng ký, chờ cấp quyền';
+  return`<tr${isPend(u)?' style="background:var(--yl)"':''}><td><b>${esc(u.name||'')}</b></td><td>${esc(u.email||'')}</td><td>${st}</td><td>${own?'—':`<select data-mu="${esc(u.id)}">${o('none',r,'Chưa cấp')}${o('viewer',r,'Chỉ xem')}${o('editor',r,'Được sửa')}</select>`}</td></tr>`}).join(''):'<tr><td colspan="4">Chưa có ai tạo tài khoản.</td></tr>')+'</tbody>'}
+$('#ust').addEventListener('change',async e=>{const id=e.target.dataset.mu;if(!id)return;const v=e.target.value;
+ try{if(v==='none')await FS.doc('members/'+id).delete();else await FS.doc('members/'+id).set({role:v})}catch(err){alert('Không cập nhật được quyền: '+((err&&err.code)||''));renderAcc()}});
+$('#logr').onclick=logv;
+const fn=r=>'Phieu-'+String(r.n).replace(/[^\w-]+/g,'')+'-'+S.m;
+async function saveFile(name,data){let dl=null;try{dl=window.claude?await claude.use('downloads'):null}catch(e){}
+ if(dl){try{await dl.save({filename:name,data})}catch(e){if(!e||e.code!=='declined')alert('Không lưu được file: '+((e&&(e.message||e.code))||''))}}
+ else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data]));a.download=name;a.click()}}
+const cap=el=>html2canvas(el,{scale:2,backgroundColor:'#fff'});
+async function busy(id,fnc){const b=$('#'+id),t=b.textContent;b.disabled=true;b.textContent='Đang tạo…';try{await fnc()}catch(e){alert('Lỗi tạo file: '+(e&&e.message||e))}b.disabled=false;b.textContent=t}
+const toBlob=c=>new Promise(r=>c.toBlob(r,'image/png'));
+function prep(){bills();const rs=billRooms(),els=$$('#sheets .sheet');if(!els.length){alert(S.sel==='all'?'Chưa có phòng nào có tên người thuê.':'Không có phiếu để xuất.');return null}return{rs,els}}
+const capX=el=>html2canvas(el,{scale:3,backgroundColor:'#fff'});
+function mkBox(rs){const box=document.createElement('div');box.className='xbox';box.innerHTML=rs.map(r=>sheet(r).replace('class="sheet"','class="sheet x"')).join('');document.body.appendChild(box);return box}
+async function stitch(els){
+ const gap=20,pad=20,W=Math.max(...els.map(e=>e.offsetWidth)),H=els.reduce((a,e)=>a+e.offsetHeight,0)+gap*(els.length-1),tw=W+2*pad,th=H+2*pad;
+ const sc=Math.min(3,15000/th,Math.sqrt(14e6/(tw*th))),cv=document.createElement('canvas');
+ cv.width=Math.round(tw*sc);cv.height=Math.round(th*sc);
+ const cx=cv.getContext('2d');cx.fillStyle='#eef1f6';cx.fillRect(0,0,cv.width,cv.height);
+ let y=pad;
+ for(const e of els){const c=await html2canvas(e,{scale:sc,backgroundColor:'#fff'});cx.drawImage(c,Math.round((tw-e.offsetWidth)/2*sc),Math.round(y*sc));y+=e.offsetHeight+gap}
+ return toBlob(cv)}
+/* Chuẩn bị sẵn ảnh từng phòng để bấm "Gửi Zalo" là mở bảng chia sẻ ngay (trình duyệt yêu cầu bấm nút trực tiếp) */
+const XF={sig:'',files:null,run:0,cur:''};let XT=0;
+const sigNow=()=>JSON.stringify([S.sel,S.p,S.m,S.supNote,S.pay,S.mgr,billRooms().map(r=>RF.map(k=>r[k]).concat([r.id]))]);
+function setShare(t,on){const b=document.getElementById('exShare');if(b){b.textContent=t;b.disabled=!on}}
+function schedulePrep(){const sec=document.getElementById('bill');if(!sec||sec.classList.contains('hide'))return;
+ if(XF.files&&XF.sig===sigNow())return;
+ if(XF.cur&&XF.cur===sigNow())return;
+ XF.files=null;setShare('⏳ Đang chuẩn bị ảnh…',false);clearTimeout(XT);XT=setTimeout(prepFiles,1000)}
+async function prepFiles(){
+ if(!window.html2canvas){setShare('📤 Không tạo được ảnh (thiếu thư viện)',false);return}
+ const sig=sigNow(),rs=billRooms(),my=++XF.run;XF.cur=sig;
+ if(!rs.length){setShare('📤 Chưa có phòng để gửi',false);return}
+ const box=mkBox(rs);
+ try{const els=[...box.querySelectorAll('.sheet')],files=[];
+  for(let i=0;i<els.length;i++){
+   setShare('⏳ Đang chuẩn bị ảnh '+(i+1)+'/'+els.length+'…',false);
+   const blob=await toBlob(await capX(els[i]));if(my!==XF.run)return;
+   files.push(new File([blob],fn(rs[i])+'.png',{type:'image/png'}))}
+  if(my!==XF.run)return;
+  XF.sig=sig;XF.files=files;setShare('📤 Gửi '+files.length+' ảnh qua Zalo',true)
+ }catch(e){setShare('⚠ Lỗi tạo ảnh – bấm để thử lại',true);XF.files=null;XF.retry=true}
+ finally{box.remove();if(my===XF.run)XF.cur=''}}
+async function saveEach(files){for(const f of files)await saveFile(f.name,f)}
+$('#exShare').onclick=async()=>{
+ if(!XF.files){XF.sig='';await prepFiles();return}
+ const files=XF.files,data={files,title:'Phiếu tiền phòng '+mlk(S.m)};
+ if(navigator.canShare&&navigator.canShare(data)){
+  try{await navigator.share(data);return}
+  catch(e){if(e&&e.name==='AbortError')return}}
+ alert('Khung ứng dụng này chưa cho phép mở chia sẻ trực tiếp.\nTôi sẽ tải từng ảnh (mỗi phòng 1 ảnh) về máy, sau đó bạn chọn các ảnh này trong Zalo để gửi một lượt.');
+ await busy('exShare',()=>saveEach(files))}
+$('#exImg').onclick=()=>busy('exImg',async()=>{if(!window.html2canvas)throw Error('Không tải được thư viện tạo ảnh');
+ const rs=billRooms();if(!rs.length){alert(S.sel==='all'?'Chưa có phòng nào có tên người thuê.':'Không có phiếu để xuất.');return}
+ const box=mkBox(rs);
+ try{const els=[...box.querySelectorAll('.sheet')],mode=$('#per').value;
+  if(mode==='each'||els.length===1){for(let i=0;i<els.length;i++)await saveFile(fn(rs[i])+'.png',await toBlob(await capX(els[i])));return}
+  const per=+mode||els.length,parts=Math.ceil(els.length/per);
+  for(let k=0;k<parts;k++){const a=k*per,b=Math.min(a+per,els.length);
+   await saveFile('Phieu-tat-ca-'+S.m+(parts>1?'-phan'+(k+1):'')+'.png',await stitch(els.slice(a,b)))}
+ }finally{box.remove()}});
+$('#exPdf1').onclick=()=>busy('exPdf1',async()=>{if(!window.html2canvas||!window.jspdf)throw Error('Không tải được thư viện PDF');const x=prep();if(!x)return;
+ const doc=new jspdf.jsPDF({unit:'mm',format:'a4'}),W=210,M=12;
+ for(let i=0;i<x.els.length;i++){const c=await cap(x.els[i]);let w=W-2*M,h=c.height*w/c.width;if(h>273){w=w*273/h;h=273}if(i)doc.addPage();doc.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',(W-w)/2,M,w,h)}
+ await saveFile(x.els.length===1?fn(x.rs[0])+'.pdf':'Phieu-tat-ca-'+S.m+'.pdf',doc.output('arraybuffer'))});
+table();stats();initDb().catch(e=>setSync("⚠ Lỗi khởi tạo: "+((e&&e.code)||e),"#d93025"));
+</script>
+</body>
+</html>
